@@ -1,10 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>xShotMirror</AssemblyName>
+    <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/daihuishen/xShotMirror</RepositoryUrl>
+    <Version>1.0.0</Version>
+    <Product>xShot Mirror</Product>
+    <Description>iPhone screen mirroring receiver for Windows</Description>
   </PropertyGroup>
 </Project>

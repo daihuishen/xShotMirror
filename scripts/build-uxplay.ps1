@@ -15,6 +15,11 @@ if (-not (Test-Path -LiteralPath (Join-Path $msysBin 'cmake.exe'))) {
 if (-not (Test-Path -LiteralPath (Join-Path $header 'dns_sd.h'))) {
     throw 'Apple dns_sd.h header is missing. See README.md.'
 }
+$expectedHeaderHash = '5D0CA50F207F6EB02E09D743F9B65D2ADE65E8F81862DCD3703845B4FE87A9C1'
+$actualHeaderHash = (Get-FileHash -LiteralPath (Join-Path $header 'dns_sd.h') -Algorithm SHA256).Hash
+if ($actualHeaderHash -ne $expectedHeaderHash) {
+    throw 'Apple dns_sd.h differs from the pinned upstream file. Check its origin and license before building.'
+}
 if (Get-Process -Name uxplay -ErrorAction SilentlyContinue) {
     throw 'UxPlay is running. Stop the receiver before rebuilding its executable.'
 }

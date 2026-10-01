@@ -23,9 +23,12 @@ internal sealed class ReceiverHost : IDisposable
             throw new InvalidOperationException("另一个 xShot Mirror 接收器正在运行。请先关闭它，再启动此窗口。");
 
         string receiver = FindReceiver();
-        string runtime = @"C:\msys64\ucrt64\bin";
+        bool bundled = File.Exists(Path.Combine(AppContext.BaseDirectory, "receiver", "uxplay.exe"));
+        string runtime = bundled ? Path.Combine(AppContext.BaseDirectory, "receiver") : @"C:\msys64\ucrt64\bin";
         if (!File.Exists(Path.Combine(runtime, "libgstreamer-1.0-0.dll")))
-            throw new FileNotFoundException("找不到 GStreamer 运行环境。请先按 README 安装 MSYS2 UCRT64。", runtime);
+            throw new FileNotFoundException("找不到视频运行库，请重新安装 xShot Mirror。开发环境请按 README 安装 MSYS2 UCRT64。", runtime);
+        if (bundled && !File.Exists(Path.Combine(Environment.SystemDirectory, "dnssd.dll")))
+            throw new InvalidOperationException("请先安装 Apple Bonjour，并确认 Bonjour Service 正在运行。安装目录中的使用说明提供了官方下载入口。");
 
         string pin = RandomNumberGenerator.GetInt32(1000, 10000).ToString(CultureInfo.InvariantCulture);
         var info = new ProcessStartInfo(receiver)
@@ -34,9 +37,24 @@ internal sealed class ReceiverHost : IDisposable
             CreateNoWindow = true,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
-            WorkingDirectory = Path.GetDirectoryName(receiver)!
+            WorkingDirectory = bundled ? GetUserDataDirectory() : Path.GetDirectoryName(receiver)!
         };
-        info.Environment["PATH"] = runtime + @";C:\msys64\usr\bin;" + Environment.GetEnvironmentVariable("PATH");
+        info.Environment["PATH"] = runtime + ";" + Environment.GetEnvironmentVariable("PATH");
+        if (bundled)
+        {
+            // Isolate from machine-wide GStreamer installs and keep the registry out of Program Files.
+            info.Environment["GST_PLUGIN_PATH"] = "";
+            info.Environment["GST_PLUGIN_PATH_1_0"] = "";
+            info.Environment["GST_PLUGIN_SYSTEM_PATH"] = Path.Combine(runtime, "plugins");
+            info.Environment["GST_PLUGIN_SYSTEM_PATH_1_0"] = Path.Combine(runtime, "plugins");
+            info.Environment["GST_PLUGIN_SCANNER"] = Path.Combine(runtime, "gst-plugin-scanner.exe");
+            info.Environment["GST_PLUGIN_SCANNER_1_0"] = Path.Combine(runtime, "gst-plugin-scanner.exe");
+            info.Environment["GST_REGISTRY"] = Path.Combine(GetUserDataDirectory(), "gstreamer-registry.bin");
+            info.ArgumentList.Add("-vd");
+            info.ArgumentList.Add("avdec_h264");
+            info.ArgumentList.Add("-vs");
+            info.ArgumentList.Add("d3d11videosink");
+        }
         foreach (string argument in new[]
         {
             "-n", "xShot Mirror", "-nh", "-as", "0", "-vsync", "no",
@@ -97,12 +115,21 @@ internal sealed class ReceiverHost : IDisposable
 
     private static string FindReceiver()
     {
+        string bundled = Path.Combine(AppContext.BaseDirectory, "receiver", "uxplay.exe");
+        if (File.Exists(bundled)) return bundled;
         for (DirectoryInfo? dir = new(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)
         {
             string path = Path.Combine(dir.FullName, "third_party", "UxPlay", "build-bonjour", "uxplay.exe");
             if (File.Exists(path)) return path;
         }
         throw new FileNotFoundException("找不到接收程序。请先运行 scripts/build-uxplay.ps1。");
+    }
+
+    private static string GetUserDataDirectory()
+    {
+        string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "xShotMirror");
+        Directory.CreateDirectory(path);
+        return path;
     }
 
     private void HandleLine(string? line)

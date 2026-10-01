@@ -9,9 +9,13 @@ xShot Mirror 让 iPhone 从系统“控制中心 → 屏幕镜像”向 Windows 
 首次使用 UxPlay 实验性内置 mDNS 时，iPhone 未发现接收器；改用本机 Bonjour 服务发现后端才通过上述验证。本机 Bonjour 浏览器也能发现 `xShot Mirror`。
 
 Windows 窗口现在显示接收状态、连接设备、配对码和画面，并有开始接收、停止接收、退出按钮。iPhone 实测已确认实时画面能显示在窗口的画面区域，且画面内部没有额外标题栏。`scripts/run.ps1` 保留直接运行接收器的诊断方式，画面会在独立原生窗口显示。没有录制或保存镜像画面的功能。
-窗口提供“全屏显示”按钮；全屏时可点“退出全屏”，也可按 Esc 或 F11 返回。用户已确认真实 iPhone 画面全屏显示与返回窗口正常。
+窗口提供全屏按钮；全屏时可点退出全屏，也可按 Esc 或 F11 返回。用户已确认真实 iPhone 画面全屏显示与返回窗口正常。界面默认使用英语，窗口右上角可选择 English 或中文，按钮、连接状态、错误提示和许可说明会随之切换。“About / Licenses”（关于/许可）列出项目许可、第三方声明和源码地址。
 
 ## 依赖与构建
+
+Windows 安装包的构建与分发步骤见 [installer/RELEASE.md](installer/RELEASE.md)。可运行 `./scripts/build-installer.ps1` 生成安装器、对应源码包和校验清单；发布前检查事项仍见 [DISTRIBUTION.md](DISTRIBUTION.md)。
+
+普通用户应运行 `dist/xShotMirror-<版本>-win-x64-Setup.exe`。该安装包自带所需的 .NET 和视频运行库。不要单独复制或双击 `src/xShotMirror/bin` 下的开发版 `xShotMirror.exe`；开发版依赖构建环境，缺少系统 .NET 时会显示安装 .NET 的提示。
 
 安装 [MSYS2](https://www.msys2.org/) 的 UCRT64 环境。该环境提供免费编译器和 GStreamer。本机安装的是 MSYS2 Installer 20260611。首次安装后按 MSYS2 官方说明运行 `pacman -Syu`，如更新基础运行时后终端退出，重新打开 UCRT64 终端再运行一次。
 
@@ -21,7 +25,7 @@ Windows 窗口现在显示接收状态、连接设备、配对码和画面，并
 pacman -S --needed mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-ninja mingw-w64-ucrt-x86_64-pkgconf mingw-w64-ucrt-x86_64-openssl mingw-w64-ucrt-x86_64-libplist mingw-w64-ucrt-x86_64-gstreamer mingw-w64-ucrt-x86_64-gst-plugins-base mingw-w64-ucrt-x86_64-gst-plugins-good mingw-w64-ucrt-x86_64-gst-plugins-bad mingw-w64-ucrt-x86_64-gst-libav
 ```
 
-桌面界面还需要 .NET 6 Windows Desktop 运行时与 SDK。本机已安装 .NET SDK 6.0.400。然后在项目根目录的 PowerShell 中运行：
+桌面界面当前面向 .NET 10 Windows Desktop。开发环境需要 .NET 10 SDK；构建脚本会优先使用项目本地 `.tools/dotnet/dotnet.exe`，若不存在则使用系统 `dotnet`。然后在项目根目录的 PowerShell 中运行：
 
 ```powershell
 ./scripts/fetch-uxplay.ps1
@@ -34,7 +38,7 @@ pacman -S --needed mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-gcc mingw-w
 
 如需排查界面问题，可关闭窗口后运行 `./scripts/run.ps1`，直接启动 UxPlay。此时画面和配对码分别在独立窗口、终端显示；在终端按 Ctrl+C 停止。
 
-本机测试时 Windows 电脑通过以太网取得 `192.168.0.90`，iPhone 可以通过同一局域网的非访客 Wi-Fi 接入；两端不必都使用无线网卡，但路由器必须允许 Wi-Fi 与有线设备互通和 mDNS 组播。脚本不会修改 Windows 防火墙规则。
+本机测试时 Windows 电脑通过以太网取得 `192.168.0.90`，iPhone 可以通过同一局域网的非访客 Wi-Fi 接入；两端不必都使用无线网卡，但路由器必须允许 Wi-Fi 与有线设备互通和 mDNS 组播。构建与启动脚本不会自动修改 Windows 防火墙规则；`allow-lan.ps1` 仅在管理员主动运行时添加本地子网入站规则。
 
 首版目标范围是 iPhone 12 或更新机型上各机型可安装的最新 iOS，以及 Windows 10 22H2/Windows 11 x64。当前只验证了上述一台 Windows 10 电脑与一台尚未记录型号和版本的 iPhone；目标范围不代表已逐一验证兼容性。
 
@@ -59,4 +63,4 @@ pacman -S --needed mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-gcc mingw-w
 
 ## 开源与分发
 
-本项目采用 GPL-3.0，详见 [LICENSE](LICENSE)。接收核心 UxPlay 也是 GPLv3。当前从 MSYS2 安装的整套开发环境**不是**准备好可直接发布的便携包；发布前应按实际携带的 DLL/插件整理精确许可证、版权声明和对应源码，排除无关插件并确认编解码相关义务。更多信息见 [DEPENDENCIES.md](DEPENDENCIES.md)。
+本项目自身源码采用 GPL-3.0-only，详见 [LICENSE](LICENSE)。接收核心 UxPlay 也是 GPLv3。Apple 头文件保留自己的 BSD 式许可；来源与修改记录见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。当前从 MSYS2 安装的整套开发环境**不是**准备好可直接发布的便携包。发布二进制前还须完成对应源码、组件许可证、PlayFair 法律状态及编解码相关审查，详见 [DISTRIBUTION.md](DISTRIBUTION.md) 和 [DEPENDENCIES.md](DEPENDENCIES.md)。

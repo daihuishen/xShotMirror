@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2026 xShot Mirror contributors
+
 using System.Drawing;
 
 namespace XShotMirror;
@@ -7,23 +10,32 @@ internal sealed class MainForm : Form
     private readonly ReceiverHost receiver = new();
     private readonly VideoWindowDock dock;
     private readonly System.Windows.Forms.Timer windowTimer = new() { Interval = 400 };
-    private readonly Label status = new() { AutoSize = true, Text = "接收已停止" };
-    private readonly Label device = new() { AutoSize = true, Text = "未连接" };
+    private readonly Label status = new() { AutoSize = true };
+    private readonly Label device = new() { AutoSize = true };
+    private readonly Label statusCaption = new() { AutoSize = true };
+    private readonly Label deviceCaption = new() { AutoSize = true };
+    private readonly Label pinCaption = new() { AutoSize = true };
     private readonly Label pin = new() { AutoSize = true, Text = "—", Font = new Font("Segoe UI", 14, FontStyle.Bold) };
     private readonly Panel video = new() { Dock = DockStyle.Fill, BackColor = Color.FromArgb(17, 22, 28) };
-    private readonly Button start = new() { Text = "开始接收", AutoSize = true };
-    private readonly Button stop = new() { Text = "停止接收", AutoSize = true, Enabled = false };
-    private readonly Button fullScreen = new() { Text = "全屏显示", AutoSize = true };
+    private readonly Button start = new() { AutoSize = true };
+    private readonly Button stop = new() { AutoSize = true, Enabled = false };
+    private readonly Button fullScreen = new() { AutoSize = true };
+    private readonly Button about = new() { AutoSize = true };
+    private readonly Button quit = new() { AutoSize = true };
+    private readonly ComboBox languageChoice = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 86 };
     private readonly TableLayoutPanel root = new() { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(20) };
     private readonly FlowLayoutPanel details = new() { Dock = DockStyle.Fill, WrapContents = false, AutoScroll = true };
     private readonly Label footer = new()
     {
-        Text = "在 iPhone 控制中心打开“屏幕镜像”，选择 xShot Mirror。电脑和 iPhone 需位于同一局域网。",
         Dock = DockStyle.Fill,
         TextAlign = ContentAlignment.MiddleLeft,
         ForeColor = Color.DimGray
     };
     private bool wasMirroring;
+    private UiLanguage language = UiLanguage.English;
+    private string statusSource = "接收已停止";
+    private string deviceSource = "未连接";
+    private bool deviceConnecting;
     private bool isFullScreen;
     private Rectangle normalBounds;
     private FormWindowState normalState;
@@ -31,8 +43,8 @@ internal sealed class MainForm : Form
     public MainForm()
     {
         Text = "xShot Mirror";
-        MinimumSize = new Size(700, 500);
-        Size = new Size(980, 700);
+        MinimumSize = new Size(900, 500);
+        Size = new Size(1080, 700);
         StartPosition = FormStartPosition.CenterScreen;
         BackColor = Color.White;
         Font = new Font("Segoe UI", 10);
@@ -53,18 +65,21 @@ internal sealed class MainForm : Form
         header.Controls.Add(title, 0, 0);
 
         var actions = new FlowLayoutPanel { AutoSize = true, WrapContents = false, FlowDirection = FlowDirection.LeftToRight, Anchor = AnchorStyles.Top | AnchorStyles.Right };
-        var quit = new Button { Text = "退出", AutoSize = true };
+        languageChoice.Items.AddRange(new object[] { "English", "中文" });
+        languageChoice.SelectedIndex = 0;
+        actions.Controls.Add(languageChoice);
         actions.Controls.Add(start);
         actions.Controls.Add(stop);
         actions.Controls.Add(fullScreen);
+        actions.Controls.Add(about);
         actions.Controls.Add(quit);
         header.Controls.Add(actions, 1, 0);
 
-        details.Controls.Add(new Label { Text = "状态：", AutoSize = true });
+        details.Controls.Add(statusCaption);
         details.Controls.Add(status);
-        details.Controls.Add(new Label { Text = "    设备：", AutoSize = true });
+        details.Controls.Add(deviceCaption);
         details.Controls.Add(device);
-        details.Controls.Add(new Label { Text = "    配对码：", AutoSize = true });
+        details.Controls.Add(pinCaption);
         details.Controls.Add(pin);
         header.Controls.Add(details, 0, 1);
         header.SetColumnSpan(details, 2);
@@ -73,12 +88,14 @@ internal sealed class MainForm : Form
         root.Controls.Add(video, 0, 1);
         root.Controls.Add(footer, 0, 2);
 
-        receiver.StatusChanged += value => UpdateUi(() => { status.Text = value; RefreshButtons(); });
-        receiver.DeviceChanged += value => UpdateUi(() => device.Text = value);
+        receiver.StatusChanged += value => UpdateUi(() => { statusSource = value; ApplyLanguage(); RefreshButtons(); });
+        receiver.DeviceChanged += value => UpdateUi(() => { deviceSource = value; deviceConnecting = value.EndsWith("（连接中）", StringComparison.Ordinal); ApplyLanguage(); });
         receiver.PinChanged += value => UpdateUi(() => pin.Text = value);
+        languageChoice.SelectedIndexChanged += (_, _) => { language = languageChoice.SelectedIndex == 1 ? UiLanguage.Chinese : UiLanguage.English; ApplyLanguage(); };
         start.Click += (_, _) => StartReceiving();
         stop.Click += (_, _) => { windowTimer.Stop(); receiver.Stop(); dock.Forget(); wasMirroring = false; RefreshButtons(); };
         fullScreen.Click += (_, _) => ToggleFullScreen();
+        about.Click += (_, _) => MessageBox.Show(this, Localization.About(language), Localization.Text(language, "aboutTitle"), MessageBoxButtons.OK, MessageBoxIcon.Information);
         quit.Click += (_, _) => Close();
         KeyDown += (_, e) =>
         {
@@ -94,18 +111,22 @@ internal sealed class MainForm : Form
             int? processId = receiver.ProcessId;
             if (processId is not null && dock.TryDock(processId.Value))
             {
-                status.Text = "正在镜像";
-                device.Text = device.Text.Replace("（连接中）", "");
+                statusSource = "正在镜像";
+                deviceSource = deviceSource.Replace("（连接中）", "", StringComparison.Ordinal);
+                deviceConnecting = false;
+                ApplyLanguage();
                 wasMirroring = true;
             }
             else if (wasMirroring)
             {
                 wasMirroring = false;
-                device.Text = "未连接";
-                status.Text = "等待 iPhone 连接（同一局域网）";
+                deviceSource = "未连接";
+                statusSource = "等待 iPhone 连接（同一局域网）";
+                ApplyLanguage();
             }
         };
         FormClosing += (_, _) => { windowTimer.Stop(); receiver.Dispose(); };
+        ApplyLanguage();
     }
 
     private void StartReceiving()
@@ -118,8 +139,9 @@ internal sealed class MainForm : Form
         }
         catch (Exception error)
         {
-            status.Text = "无法启动接收";
-            MessageBox.Show(this, error.Message, "xShot Mirror", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            statusSource = "无法启动接收";
+            ApplyLanguage();
+            MessageBox.Show(this, Localization.StartupError(language, error), Localization.Text(language, "startupTitle"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
     }
 
@@ -127,6 +149,21 @@ internal sealed class MainForm : Form
     {
         start.Enabled = !receiver.IsRunning;
         stop.Enabled = receiver.IsRunning;
+    }
+
+    private void ApplyLanguage()
+    {
+        start.Text = Localization.Text(language, "start");
+        stop.Text = Localization.Text(language, "stop");
+        fullScreen.Text = Localization.Text(language, isFullScreen ? "exitFullscreen" : "fullscreen");
+        about.Text = Localization.Text(language, "about");
+        quit.Text = Localization.Text(language, "exit");
+        statusCaption.Text = Localization.Text(language, "status");
+        deviceCaption.Text = Localization.Text(language, "device");
+        pinCaption.Text = Localization.Text(language, "pin");
+        footer.Text = Localization.Text(language, "instructions");
+        status.Text = Localization.Status(language, statusSource);
+        device.Text = Localization.Device(language, deviceSource, deviceConnecting);
     }
 
     private void ToggleFullScreen()
@@ -143,7 +180,6 @@ internal sealed class MainForm : Form
             details.Visible = false;
             footer.Visible = false;
             WindowState = FormWindowState.Maximized;
-            fullScreen.Text = "退出全屏";
             isFullScreen = true;
         }
         else
@@ -157,9 +193,9 @@ internal sealed class MainForm : Form
             details.Visible = true;
             footer.Visible = true;
             WindowState = normalState;
-            fullScreen.Text = "全屏显示";
             isFullScreen = false;
         }
+        ApplyLanguage();
     }
 
     private void UpdateUi(Action change)

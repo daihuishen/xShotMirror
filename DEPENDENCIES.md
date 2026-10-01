@@ -10,10 +10,10 @@
 | MSYS2 Installer | 20260611 | 构建环境 | BSD-3-Clause；仅为开发机工具。 |
 | GCC / CMake | 16.2.0 / 4.4.3 | 编译 | 仅为构建工具，运行时依赖另行核对。 |
 | OpenSSL | 3.6.5 | 协议加密 | Apache-2.0；UxPlay 上游建议使用 3.0 或更新版本处理旧版本 GPL 兼容问题。 |
-| libplist | 2.7.0 | AirPlay plist 解析 | LGPL-2.1-or-later。 |
+| libplist | 2.7.0 | AirPlay plist 解析 | 上游标注 LGPL-2.1；最终以实际分发版本的版权文件为准。 |
 | GStreamer、base/good/bad/libav | 1.28.7 | 视频解码与显示 | 具体插件及其间接依赖许可证需按最终分发清单逐项核对；当前不打包分发。 |
-| .NET Windows Desktop | SDK 6.0.400，运行时 6.0.8 | WinForms 界面 | 开发机预装；当前不打包运行时。正式发布前应升级到仍受支持的 .NET 版本并核对部署许可。 |
+| .NET Windows Desktop | 项目目标 .NET 10；本地 SDK 10.0.401、Windows Desktop 运行时 10.0.12 | WinForms 界面 | 本地 SDK 位于忽略的 `.tools`，不在源码仓库中；正式发布前核对运行时的实际分发方式与许可。 |
 
-本机已确认 `avdec_h264` 与 `d3d12videosink` 插件可加载。安装 `gst-plugins-bad`/`gst-libav` 会通过 MSYS2 拉入许多与本原型无关的编解码库，**不得直接复制整个 UCRT64 目录作为发行包**。后续发布还要审计 FFmpeg、可能的编解码专利和上游 PlayFair 来源。此表只记录原型构建环境，不是发行许可清单。
+本机已确认 `avdec_h264` 与 `d3d12videosink` 插件可加载。安装 `gst-plugins-bad`/`gst-libav` 会通过 MSYS2 拉入许多与本原型无关的编解码库，**不得直接复制整个 UCRT64 目录作为发行包**。后续发布还要审计 FFmpeg、可能的编解码专利和上游 PlayFair 来源。此表只记录原型构建环境，不是发行许可清单；二进制发布门槛见 [DISTRIBUTION.md](DISTRIBUTION.md)。
 
 上游资料：[UxPlay](https://github.com/FDH2/UxPlay)、[GStreamer 授权说明](https://gstreamer.freedesktop.org/documentation/frequently-asked-questions/licensing.html)、[OpenSSL 许可](https://www.openssl.org/source/license.html)、[libplist](https://github.com/libimobiledevice/libplist)。
