@@ -9,7 +9,7 @@ Download `xShotMirror-1.0.0-win-x64-Setup.exe` to install. Apple Bonjour must be
 
 This version receives video only: no audio playback, recording, or DRM-protected playback. The installer is currently unsigned, so Windows may show an unknown-publisher or SmartScreen prompt.
 
-`xShotMirror-1.0.0-sources.zip` contains the matching application source, patched UxPlay source, build scripts, and 90 corresponding MSYS2 source packages. `SHA256SUMS.txt` provides download hashes. Source code is distributed under its respective licenses; see the included licenses and notices.
+`xShotMirror-1.0.0-sources.zip` contains the matching application source, patched UxPlay source, build scripts, and corresponding MSYS2 source packages. `SHA256SUMS.txt` provides download hashes. Source code is distributed under its respective licenses; see the included licenses and notices.
 
 ---
 

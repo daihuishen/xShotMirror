@@ -13,7 +13,7 @@
 ./scripts/build-installer.ps1 -Version 1.0.0 -Iscc 'C:/Program Files (x86)/Inno Setup 6/ISCC.exe'
 ```
 
-构建脚本重新编译 UxPlay，发布自带 .NET 的界面，解析所选 GStreamer 插件和原生程序的 DLL 依赖，复制对应包的许可证。然后从 MSYS2 官方仓库获取相同版本的源码包，补齐上游版权声明，生成源码 ZIP，最后编译安装器与 SHA-256 清单。MSYS2 的 FFmpeg 构建链接了许多库，所以即使只选 6 个插件，也会带入额外的 DLL；没有复制完整开发环境。
+构建脚本重新编译 UxPlay，发布自带 .NET 的界面，解析所选 GStreamer 插件和原生程序的 DLL 依赖，复制对应包的许可证。然后从 MSYS2 官方仓库获取相同版本的源码包，补齐上游版权声明，生成源码 ZIP，最后编译安装器与 SHA-256 清单。MSYS2 的 FFmpeg 构建链接了许多库，所以即使只选 8 个插件，也会带入额外的 DLL；没有复制完整开发环境。
 
 源码 ZIP 中 `xShotMirror/` 包含当前源码、修改后的 UxPlay 和构建脚本；`dependencies/` 保存原始 MSYS2 源码包、PKGBUILD、补丁及下载哈希。重建依赖时，在 MSYS2 中解包相应源码包，按其 PKGBUILD 使用 `makepkg-mingw` 构建并安装，再构建本项目。UxPlay 使用固定上游提交和仓库中的 Bonjour 补丁；`build-uxplay.ps1` 同时接受已经应用补丁的源码。应用与原生 DLL 均未单文件封装，便于替换重建的组件。
 
