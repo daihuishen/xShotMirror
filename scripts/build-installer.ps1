@@ -37,6 +37,8 @@ foreach ($notice in @('THIRD_PARTY_NOTICES.md', 'DISTRIBUTION.md')) {
 }
 $guide = (Get-Content (Join-Path $root 'installer\user-guide.txt') -Raw).Replace('1.0.0', $Version)
 Set-Content (Join-Path $publish '使用说明.txt') $guide -Encoding utf8BOM
+$englishGuide = (Get-Content (Join-Path $root 'installer\user-guide.en.txt') -Raw).Replace('1.0.0', $Version)
+Set-Content (Join-Path $publish 'User Guide.txt') $englishGuide -Encoding utf8BOM
 foreach ($name in @('dotnet', 'UxPlay', 'bonjour-header', 'InnoSetup')) {
     New-Item -ItemType Directory -Force (Join-Path $publish "licenses\$name") | Out-Null
 }
