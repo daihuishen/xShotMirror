@@ -17,5 +17,5 @@ $env:PATH = "$runtime;C:\msys64\usr\bin;$env:PATH"
 Write-Host 'xShot Mirror is starting. Open iPhone Control Center > Screen Mirroring.'
 Write-Host 'The live picture appears in a separate native video window after connection.'
 Write-Host 'The terminal may show a pairing PIN. Press Ctrl+C here to stop receiving.'
-& $receiver -n 'xShot Mirror' -nh -as 0 -vsync no -pin
+& $receiver -n 'xShot Mirror' -nh -as wasapisink -pin
 exit $LASTEXITCODE

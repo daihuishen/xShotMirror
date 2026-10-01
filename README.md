@@ -1,6 +1,6 @@
 # xShot Mirror — Windows AirPlay 屏幕镜像接收原型
 
-xShot Mirror 让 iPhone 从系统“控制中心 → 屏幕镜像”向 Windows 电脑投屏。首版仅限同一局域网、单台 iPhone、视频画面，不需要修改 iPhone 上的 xShot。接收协议由 [UxPlay](https://github.com/FDH2/UxPlay) 实际运行，GStreamer 负责 H.264 解码和显示。
+xShot Mirror 让 iPhone 从系统“控制中心 → 屏幕镜像”向 Windows 电脑投屏。首版仅限同一局域网和单台 iPhone，不需要修改 iPhone 上的 xShot。接收协议由 [UxPlay](https://github.com/FDH2/UxPlay) 实际运行，GStreamer 负责 H.264/AAC 解码以及画面和声音输出。
 
 ## 当前状态
 
@@ -15,7 +15,7 @@ Windows 窗口现在显示接收状态、连接设备、配对码和画面，并
 
 Windows 安装包的构建与分发步骤见 [installer/RELEASE.md](installer/RELEASE.md)。可运行 `./scripts/build-installer.ps1` 生成安装器、对应源码包和校验清单；发布前检查事项仍见 [DISTRIBUTION.md](DISTRIBUTION.md)。
 
-普通用户应运行 `dist/xShotMirror-<版本>-win-x64-Setup.exe`。该安装包自带所需的 .NET 和视频运行库。不要单独复制或双击 `src/xShotMirror/bin` 下的开发版 `xShotMirror.exe`；开发版依赖构建环境，缺少系统 .NET 时会显示安装 .NET 的提示。
+普通用户应运行 `dist/xShotMirror-<版本>-win-x64-Setup.exe`。该安装包自带所需的 .NET 和音视频运行库。不要单独复制或双击 `src/xShotMirror/bin` 下的开发版 `xShotMirror.exe`；开发版依赖构建环境，缺少系统 .NET 时会显示安装 .NET 的提示。
 
 安装 [MSYS2](https://www.msys2.org/) 的 UCRT64 环境。该环境提供免费编译器和 GStreamer。本机安装的是 MSYS2 Installer 20260611。首次安装后按 MSYS2 官方说明运行 `pacman -Syu`，如更新基础运行时后终端退出，重新打开 UCRT64 终端再运行一次。
 

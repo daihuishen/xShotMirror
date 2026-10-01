@@ -26,7 +26,7 @@ internal sealed class ReceiverHost : IDisposable
         bool bundled = File.Exists(Path.Combine(AppContext.BaseDirectory, "receiver", "uxplay.exe"));
         string runtime = bundled ? Path.Combine(AppContext.BaseDirectory, "receiver") : @"C:\msys64\ucrt64\bin";
         if (!File.Exists(Path.Combine(runtime, "libgstreamer-1.0-0.dll")))
-            throw new FileNotFoundException("找不到视频运行库，请重新安装 xShot Mirror。开发环境请按 README 安装 MSYS2 UCRT64。", runtime);
+            throw new FileNotFoundException("找不到音视频运行库，请重新安装 xShot Mirror。开发环境请按 README 安装 MSYS2 UCRT64。", runtime);
         if (bundled && !File.Exists(Path.Combine(Environment.SystemDirectory, "dnssd.dll")))
             throw new InvalidOperationException("请先安装 Apple Bonjour，并确认 Bonjour Service 正在运行。安装目录中的使用说明提供了官方下载入口。");
 
@@ -54,10 +54,12 @@ internal sealed class ReceiverHost : IDisposable
             info.ArgumentList.Add("avdec_h264");
             info.ArgumentList.Add("-vs");
             info.ArgumentList.Add("d3d11videosink");
+            info.ArgumentList.Add("-as");
+            info.ArgumentList.Add("wasapisink");
         }
         foreach (string argument in new[]
         {
-            "-n", "xShot Mirror", "-nh", "-as", "0", "-vsync", "no",
+            "-n", "xShot Mirror", "-nh",
             "-pin", pin
         }) info.ArgumentList.Add(argument);
 

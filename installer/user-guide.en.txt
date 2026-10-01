@@ -1,12 +1,12 @@
 xShot Mirror 1.0.0 - User Guide
 
 Mirror your iPhone screen to a Windows computer. Supports windowed viewing, full screen, and PIN pairing.
-This version receives video only. Audio playback, recording, and DRM-protected video are not supported.
+Mirroring audio plays through the current default Windows output device. Recording and DRM-protected video are not supported.
 
 Requirements
 Windows 10 22H2 or Windows 11 on a 64-bit Intel or AMD computer.
 Connect your computer and iPhone to the same local network. Wired and Wi-Fi devices must be able to communicate; isolated guest networks will not work.
-.NET 10 and the required video runtime are included. MSYS2 and developer tools are not needed.
+.NET 10 and the required audio/video runtime are included. MSYS2 and developer tools are not needed.
 Apple Bonjour must be installed separately, with Bonjour Service running.
 Apple's official download information: https://support.apple.com/106380
 Apple's page lists older Windows versions. Verify that Bonjour works on your target Windows version.

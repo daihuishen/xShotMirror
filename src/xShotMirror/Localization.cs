@@ -64,8 +64,8 @@ internal static class Localization
         string message = error.Message;
         if (message.Contains("另一个 xShot Mirror", StringComparison.Ordinal))
             return "Another xShot Mirror receiver is running. Close it before starting this window.";
-        if (message.Contains("找不到视频运行库", StringComparison.Ordinal))
-            return "Video runtime is missing. Reinstall xShot Mirror, or install MSYS2 UCRT64 for a development build.";
+        if (message.Contains("找不到音视频运行库", StringComparison.Ordinal))
+            return "Audio/video runtime is missing. Reinstall xShot Mirror, or install MSYS2 UCRT64 for a development build.";
         if (message.Contains("请先安装 Apple Bonjour", StringComparison.Ordinal))
             return "Install Apple Bonjour and make sure Bonjour Service is running. See the installation instructions for the official download.";
         if (message.Contains("找不到接收程序", StringComparison.Ordinal))

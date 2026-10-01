@@ -13,7 +13,8 @@ def collect(msys: Path, output: Path, receiver: Path):
     prefix = msys / 'ucrt64'
     binary_dir = prefix / 'bin'
     plugins = ['coreelements', 'app', 'videoparsersbad', 'libav',
-               'videoconvertscale', 'd3d11', 'playback', 'autodetect']
+               'videoconvertscale', 'd3d11', 'playback', 'autodetect',
+               'audioconvert', 'audioresample', 'volume', 'level', 'wasapi']
     pending = [(receiver, output / 'receiver' / receiver.name)]
     pending += [(prefix / 'lib/gstreamer-1.0' / f'libgst{p}.dll',
                  output / 'receiver/plugins' / f'libgst{p}.dll') for p in plugins]

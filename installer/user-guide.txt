@@ -1,12 +1,12 @@
 xShot Mirror 1.0.0 — 使用说明
 
 将 iPhone 屏幕投放到 Windows 电脑。支持窗口显示、全屏和 PIN 配对。
-本版仅接收视频，不播放声音，不录制画面，不支持受 DRM 保护的视频。
+镜像声音通过 Windows 当前默认播放设备输出。本版不录制画面或声音，也不支持受 DRM 保护的视频。
 
 运行条件
 Windows 10 22H2 / Windows 11，64 位 Intel 或 AMD 电脑。
 电脑和 iPhone 在同一局域网，允许有线与 Wi-Fi 互通，不能使用隔离的访客网络。
-安装包包含 .NET 10 与所需视频运行库，不需要安装 MSYS2 或开发工具。
+安装包包含 .NET 10 与所需音视频运行库，不需要安装 MSYS2 或开发工具。
 需要已经安装 Apple Bonjour，并让 Bonjour Service 保持运行。
 Apple 官方下载说明：https://support.apple.com/zh-cn/106380
 Apple 页面列出的 Windows 系统版本较旧；请在目标 Windows 版本上确认 Bonjour 能正常运行。
