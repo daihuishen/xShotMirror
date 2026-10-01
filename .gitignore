@@ -1,0 +1,7 @@
+third_party/UxPlay/
+*.log
+__pycache__/
+.dotnet/
+.nuget/
+**/bin/
+**/obj/

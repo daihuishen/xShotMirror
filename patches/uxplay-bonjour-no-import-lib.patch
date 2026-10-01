@@ -1,0 +1,17 @@
+diff --git a/lib/dns_sd/CMakeLists.txt b/lib/dns_sd/CMakeLists.txt
+index 90b118d..5fbf110 100644
+--- a/lib/dns_sd/CMakeLists.txt
++++ b/lib/dns_sd/CMakeLists.txt
+@@ -22,9 +22,9 @@ if ( NOT APPLE )
+         set(BONJOUR_SDK "C:\\Program Files\\Bonjour SDK")
+       endif()
+       message( STATUS "BONJOUR_SDK_HOME " ${BONJOUR_SDK} )
+-      set(DNSSD "${BONJOUR_SDK}/Lib/x64/dnssd.lib")
+-      target_link_libraries(dnssd ${DNSSD} )
+-      message( STATUS "dns_sd: using " ${DNSSD} )
++      # dns_sd.c resolves dnssd.dll functions at runtime on Windows.
++      # The Bonjour import library is therefore not required.
++      message( STATUS "dns_sd: loading dnssd.dll at runtime" )
+       find_path(DNSSD_INCLUDE_DIR dns_sd.h HINTS ${BONJOUR_SDK}/Include )
+     else()
+       find_library( DNSSD dns_sd )
